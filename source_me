@@ -1,0 +1,55 @@
+# Handy function to help restart an application
+krestart () 
+{ 
+  for mgmttype in StatefulSet Deployment; do
+    kubectl get -o=json --namespace "$(kns -c)" "$mgmttype" | jq -r \
+    '.items[] | "\n# Copy/Paste to restart \(.metadata.name) '${mgmttype}' Pod\n" + 
+    "k scale -n '\''$(kns -c)'\'' '${mgmttype}' \(.metadata.name) --replicas 0\n" +
+    "k scale -n '\''$(kns -c)'\'' '${mgmttype}' \(.metadata.name) --replicas \(.spec.replicas)"' 
+  done
+}
+
+krsh () 
+{ 
+    POD_NAME="$1";
+    if [ -z "$POD_NAME" ]; then
+        echo "Usage: krsh <pod_name>";
+        return 1;
+    fi;
+    for SHELL in /bin/bash /bin/ash /bin/sh;
+    do
+        if kubectl exec -it "$POD_NAME" -- $SHELL -c "echo 'Using shell: $SHELL'" &> /dev/null; then
+            echo "Executing $SHELL in pod '$POD_NAME'...";
+            kubectl exec -it "$POD_NAME" -- $SHELL;
+            return 0;
+        fi;
+    done;
+    echo "No available shell found in pod '$POD_NAME' in current namespace.";
+    return 1
+}
+krshn () 
+{ 
+    POD_NAME="$2";
+    NAMESPACE="${1}";
+    if [ -z "$POD_NAME" ]; then
+        echo "Usage: krshn <namespace> <pod_name>";
+        return 1;
+    fi;
+    for SHELL in /bin/bash /bin/ash /bin/sh;
+    do
+        if kubectl exec -it "$POD_NAME" -n "$NAMESPACE" -- $SHELL -c "echo 'Using shell: $SHELL'" &> /dev/null; then
+            echo "Executing $SHELL in pod '$POD_NAME'...";
+            kubectl exec -it "$POD_NAME" -n "$NAMESPACE" -- $SHELL;
+            return 0;
+        fi;
+    done;
+    echo "No available shell found in pod '$POD_NAME' in namespace '$NAMESPACE'";
+    return 1
+}
+
+
+# Handy alias to pipe though when log contains color codes
+alias nocolors="sed 's/\x1b[[0-9;]*m//g'"
+
+source .kubectl_aliases
+

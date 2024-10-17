@@ -37,6 +37,7 @@ def main():
         ('ak', 'apply -k', None, ['sys']),
         ('k', 'kustomize', None, ['sys']),
         ('x', 'exec -i -t', None, None),
+        ('s', 'stern', None, ['sys']),
         ('lo', 'logs -f', None, None),
         ('lop', 'logs -f -p', None, None),
         ('p', 'proxy', None, ['sys']),
@@ -55,9 +56,9 @@ def main():
         ('svc', 'service', ['g', 'd', 'e', 'rm'], None),
         ('ing', 'ingress', ['g', 'd', 'e', 'rm'], None),
         ('cm', 'configmap', ['g', 'd', 'e', 'rm'], None),
-        ('sec', 'secret', ['g', 'd', 'rm'], None),
+        ('sec', 'secret', ['g', 'd', 'e', 'rm'], None),
         ('no', 'nodes', ['g', 'd'], ['sys']),
-        ('ns', 'namespaces', ['g', 'd', 'rm'], ['sys']),
+        ('ns', 'namespaces', ['g', 'd', 'e', 'rm'], ['sys']),
         ]
     res_types = [r[0] for r in res]
 
@@ -65,8 +66,8 @@ def main():
         ('oyaml', '-o=yaml', ['g'], ['owide', 'ojson', 'sl']),
         ('owide', '-o=wide', ['g'], ['oyaml', 'ojson']),
         ('ojson', '-o=json', ['g'], ['owide', 'oyaml', 'sl']),
-        ('all', '--all-namespaces', ['g', 'd'], ['rm', 'f', 'no', 'sys']),
-        ('sl', '--show-labels', ['g'], ['oyaml', 'ojson'], None),
+        ('all', '--all-namespaces', ['g', 'd', 's'], ['rm', 'f', 'no', 'sys']),
+        ('sl', '--show-labels', ['g'], ['oyaml', 'ojson', 'l'], None),
         ('all', '--all', ['rm'], None), # caution: reusing the alias
         ('w', '--watch', ['g'], ['oyaml', 'ojson', 'owide']),
         ]
@@ -74,8 +75,7 @@ def main():
     # these accept a value, so they need to be at the end and
     # mutually exclusive within each other.
     positional_args = [('f', '--recursive -f', ['g', 'd', 'rm'], res_types + ['all'
-                       , 'l', 'sys']), ('l', '-l', ['g', 'd', 'rm'], ['f',
-                       'all']), ('n', '--namespace', ['g', 'd', 'rm',
+                       , 'l', 'sys']), ('l', '-l', ['s', 'g', 'd', 'rm'], ['f']), ('n', '--namespace', ['g', 'd', 'rm', 's',
                        'lo', 'e', 'x', 'pf'], ['ns', 'no', 'sys', 'all'])]
 
     # [(part, optional, take_exactly_one)]
